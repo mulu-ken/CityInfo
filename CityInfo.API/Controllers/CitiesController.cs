@@ -1,38 +1,49 @@
-﻿using CityInfo.API.Models;
+﻿using AutoMapper;
+using CityInfo.API.Models;
+using CityInfo.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CityInfo.API.Controllers
 {
     [ApiController]
     [Route("api/cities")]
-    public class CitiesController:ControllerBase
+    public class CitiesController : ControllerBase
     {
-        private readonly CitiesDataStore _dataStore;
+        private readonly ICityInfoRepository _cityInfoRepository;
+        private readonly IMapper _mapper;
 
-        public CitiesController(CitiesDataStore dataStore)
+
+        public CitiesController(ICityInfoRepository cityInfoRepository, IMapper mapper)
         {
-            _dataStore = dataStore ?? throw new ArgumentNullException(nameof(dataStore));
+            _cityInfoRepository = cityInfoRepository ?? throw new ArgumentNullException(nameof(cityInfoRepository));
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public ActionResult<CityDto> GetCities()
+        public async Task<ActionResult<IEnumerable<CityDto>>> GetCities()
         {
-            var allCities = _dataStore.Cities;
-
-            return Ok(allCities);
+            var allCities = await _cityInfoRepository.GetCitiesAsync();
+            return Ok(_mapper.Map<IEnumerable<CityWithoutPointsOfInterestDto>>(allCities));
         }
 
 
         [HttpGet("{id}")]
-        public ActionResult<CityDto> GetCity(int id) {
-
-            var filteredCity = _dataStore.Cities.FirstOrDefault(city => city.Id == id);
-
-            if (filteredCity == null) {
-            return NotFound();
+        public async Task<ActionResult<CityDto>> GetCity(
+            int id, bool includePointsOfInterest = false)
+        {
+            var city = await _cityInfoRepository.GetCityAsync(id, includePointsOfInterest);
+            if (city == null)
+            {
+                return NotFound();
             }
 
-            return Ok(filteredCity);
+            if (includePointsOfInterest)
+            {
+                return Ok(_mapper.Map<CityDto>(city));
+            }
+
+            return Ok(_mapper.Map<CityWithoutPointsOfInterestDto>(city));
         }
     }
+
 }

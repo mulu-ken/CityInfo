@@ -18,10 +18,10 @@ namespace CityInfo.API.Services
             return await _context.Cities.OrderBy(c => c.Name).ToListAsync();
         }
 
-        public async Task<City?> GetCityAsync(int cityId, bool includePointOfInterest)
+        public async Task<City?> GetCityAsync(int cityId, bool includePointsOfInterest)
         {
 
-            if (includePointOfInterest)
+            if (includePointsOfInterest)
             {
                 return await _context.Cities.Include(c => c.PointOfInterest).
                     Where(c => c.Id == cityId).FirstOrDefaultAsync();
@@ -35,10 +35,39 @@ namespace CityInfo.API.Services
             return await _context.PointsOfInterest.Where(p => p.CityId == cityId).ToListAsync();
         }
 
+
+        public async Task<bool> CityExistsAsync(int cityId)
+        {
+            return await _context.Cities.AnyAsync(c => c.Id == cityId);
+        }
+
         public async Task<PointOfInterest?> GetPointsOfInterestForCityAsync(int cityId, int pointOfInterestId)
         {
             return await _context.PointsOfInterest
                 .Where(p => p.CityId == cityId && p.Id == pointOfInterestId).FirstOrDefaultAsync();
         }
+
+
+        public async Task AddPointOfInterestForCityAsync(int cityId, PointOfInterest pointOfInterest)
+        {
+            var city = await GetCityAsync(cityId, false);
+            if (city != null)
+            {
+                city.PointOfInterest.Add(pointOfInterest);
+            }
+
+
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync() >= 0);
+        }
+
+        public void DeletePointOfInterest(PointOfInterest pointOfInterest)
+        {
+            _context.PointsOfInterest.Remove(pointOfInterest);
+        }
+
     }
 }
