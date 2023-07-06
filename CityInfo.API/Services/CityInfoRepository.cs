@@ -1,4 +1,5 @@
-﻿using CityInfo.API.DbContexts;
+﻿using System.Collections.Immutable;
+using CityInfo.API.DbContexts;
 using CityInfo.API.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,30 @@ namespace CityInfo.API.Services
         {
         
             return await _context.Cities.OrderBy(c => c.Name).ToListAsync();
+        }
+
+
+        public async Task<IEnumerable<City>> GetCitiesAsync(string? name, string? searchQuery, int pageNumber, int pageSize)
+        {
+            var query = _context.Cities.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.Trim();
+                query = query.Where(c =>
+                    c.Name.Contains(searchQuery) ||
+                    (!string.IsNullOrEmpty(c.Description) && c.Description.Contains(searchQuery)));
+                
+            }
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                name = name.Trim();
+                query = query.Where(c => c.Name == name);
+
+            }
+
+            return await query.OrderBy(c => c.Name).Skip(pageSize* (pageNumber - 1)).Take(pageSize).ToListAsync();   
         }
 
         public async Task<City?> GetCityAsync(int cityId, bool includePointsOfInterest)
