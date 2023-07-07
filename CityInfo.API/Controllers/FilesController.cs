@@ -7,7 +7,7 @@ namespace CityInfo.API.Controllers
 {
     [Route("api/files")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "MustBeFromSeattle")]
 
     public class FilesController : ControllerBase
 

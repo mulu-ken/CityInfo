@@ -11,7 +11,7 @@ namespace CityInfo.API.Controllers
 {
     [Route("api/cities/{cityId}/pointsofinterest")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "MustBeFromSeattle")]
 
     public class PointOfInterestController : ControllerBase
     {
@@ -34,6 +34,14 @@ namespace CityInfo.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PointOfInterestDto>>> GetPointsOfInterest(int cityId)
         {
+
+            var cityName = User.Claims.FirstOrDefault(c => c.Type == "city")?.Value;
+
+            if (!await _cityInfoRepository.CityNameMathcesCityId(cityName, cityId))
+            {
+                return Forbid();
+            }
+
             if (!await _cityInfoRepository.CityExistsAsync(cityId))
             {
                 _logger.LogInformation($"City with id {cityId} wasn't found when accessing points of interest.");
@@ -49,6 +57,8 @@ namespace CityInfo.API.Controllers
         [HttpGet("{pointofinterestId}", Name = "GetPointOfInterest")]
         public async Task<ActionResult<PointOfInterestDto>> GetPointOfInterest(int cityId, int pointofinterestId)
         {
+
+
             try
             {
 

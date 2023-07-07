@@ -23,7 +23,7 @@ namespace CityInfo.API.DbContexts
                    Id = 1,
                    Description = "The one with that big park."
                },
-               new City("Antwerp")
+               new City("Seattle")
                {
                    Id = 2,
                    Description = "The one with the cathedral that was never really finished."

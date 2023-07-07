@@ -57,6 +57,15 @@ builder.Services.AddAuthentication("Bearer")
         }
     );
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("MustBeFromSeattle", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("city", "Seattle");
+    });
+});
+
 #if DEBUG
 builder.Services.AddTransient<ILocalMailService, CloudMailService>();
 #else
