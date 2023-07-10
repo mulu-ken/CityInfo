@@ -46,6 +46,21 @@ builder.Services.AddSwaggerGen(setupAction =>
         Scheme = "Bearer",
         Description = "Input a valid token to access the api"
     });
+
+   setupAction.AddSecurityRequirement(new OpenApiSecurityRequirement
+   {
+       {
+           new OpenApiSecurityScheme
+           {
+               Reference = new OpenApiReference
+               {
+                   Type = ReferenceType.SecurityScheme,
+                   Id = "CityInfoApiBearerAuth"
+               }
+           }, new List<string>()
+       }
+   });
+
 });
 
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
