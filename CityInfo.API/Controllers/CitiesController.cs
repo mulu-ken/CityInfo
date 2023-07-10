@@ -9,7 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 namespace CityInfo.API.Controllers
 {
     [ApiController]
-    [Route("api/cities")]
+    [Route("api/v{version:apiVersion}/cities")]
+    [ApiVersion("1.0")]
     [Authorize(Policy = "MustBeFromSeattle")]
     public class CitiesController : ControllerBase
     {
@@ -38,10 +39,21 @@ namespace CityInfo.API.Controllers
             
 
             return Ok(_mapper.Map<IEnumerable<CityWithoutPointsOfInterestDto>>(allCities));
-        } 
+        }
 
-
-      [HttpGet("{id}")]
+        /// <summary>
+        /// Get a city by id
+        /// </summary>
+        /// <param name="id">The Id of the city to get</param>
+        /// <param name="includePointsOfInterest">Whether or not to include the point of interest</param>
+        /// <returns>An action Result</returns>
+        /// <response code="200">Returns the requested city</response>
+  
+        
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CityDto>> GetCity(
             int id, bool includePointsOfInterest = false)
         {

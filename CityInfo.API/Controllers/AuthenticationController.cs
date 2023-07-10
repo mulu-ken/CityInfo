@@ -8,8 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace CityInfo.API.Controllers
 {
-    [Route("api/authentication")]
     [ApiController]
+    [Route("api/authentication")]
+    
     public class AuthenticationController : ControllerBase
     {
         private readonly IConfiguration _configuration;
